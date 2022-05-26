@@ -1,0 +1,83 @@
+<html>
+    <head>        
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+        <title>Aplikasi Stock Barang</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- <script src="js/jquery-migrate-1.4.1.min"></script> -->
+    </head>
+    <body style="background-color: yellowgreen">
+        <div class="container" style="margin-top: 100px; ">
+            <div class="row">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h1 class="text-center">Aplikasi Stock Barang</h1>
+                            <button id="btnTambah" class="rounded-pill" >Tambah</button> 
+                        <table class="table table-bordered" >
+                            <thead>
+                                <tr>
+                                    <td>Kategori Barang</td>
+                                    <td>Nama Barang</td>
+                                    <td>Jumlah Stock</td>
+                                    <td>Aksi</td>
+                                </tr>
+                            </thead>
+                            <tbody id="isi"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+<script>
+    $(document).on('click', "#btnTambah", function() {
+        window.location.href="tambah.html";
+    });
+
+    $(document).ready(function() {
+        $.ajax({
+            url: "../backend/list_all.php",
+            type: "GET",
+            cache: false,
+            success: function(resp) {
+                // console.log(resp);
+                result = JSON.parse(resp);
+                resultTag = "";
+                for(i=0; i<result.length; i++) {
+                    resultTag += "<tr>" +
+                        "<td>" + result[i].kategori + "</td>" +
+                        "<td>" + result[i].nama + "</td>" +
+                        "<td>" + result[i].jumlah_stock + "</td>" +
+                        '<td><button class="rounded-pill" id="hapus" kategori="' + result[i].kategori + '">Hapus</button>&nbsp;' +
+                        '<button class="rounded-pill" id="edit" kategori="' + result[i].kategori + '">Ubah</button></td>' +
+                        "</tr>";
+                }
+                $("#isi").html(resultTag);
+            }
+        });
+    });
+
+    $(document).on('click', "#hapus", function() {
+        var kategori = $(this).attr("kategori");
+        console.log(kategori);
+        var param = new Object();
+        param.kategori = kategori;
+        $.post("../backend/hapus.php", JSON.stringify(param), 
+          function(resp) {
+            var obj = JSON.parse(resp);
+            if(obj.status == "success") {
+                alert("Data berhasil terhapus");
+                window.location.href="index.html";
+            } else {
+                alert("Data gagal terhapus");
+            }
+        });
+    });
+
+    $(document).on('click', '#edit', function() {
+        var kategori = $(this).attr('kategori');
+        window.location.href = "./ubah.html?kategori=" + kategori;
+    });
+</script>        
+    </body>
+</html>
